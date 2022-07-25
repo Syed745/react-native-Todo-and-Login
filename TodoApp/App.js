@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import {
+  Alert,
   Button,
   FlatList,
   SafeAreaView,
@@ -12,51 +13,74 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+import { styles } from './styles';
 
-const Color = { primary: '#14213d', white: '#f1faee' }
+
+
 const App = () => {
 
+  const [textInput, setTextInput] = useState('')
   const [todos, setTodos] = useState([
-    { id: 1, task: 'first task', compeleted: true },
-    { id: 2, task: 'secound task', compeleted: true }
+    { id: 1, task: 'first task', Done: true },
+    { id: 2, task: 'secound task', Done: true }
   ])
 
   const ListItem = ({ todo }) => {
-    return <View style={styles.listitem}>
-      <View>
-        <Text style={{
-        fontSize: 18, fontWeight: 'bold',
-        textDecorationLine: todo?.compeleted ? 'line-through' : 'none',
-      }}>{todo?.task}
-      </Text>
-      </View>
-      <TouchableOpacity style={{padding:10}}>
-        <Button title='EDIT' color='#457b9d' />
-      </TouchableOpacity>
-      <TouchableOpacity  style={{padding:10}}>
-        <Button title='DELETE' color='#e63946' />
-      </TouchableOpacity>
-    </View>
+    return (
+      <View style={styles.listitem}>
+        <View>
+          <Text style={styles.listText}>{todo?.task}
+          </Text>
+        </View>
+        {!todo?.Done && (
+          <TouchableOpacity style={{ padding: 10 }}>
+            <Button title='EDIT' color='#457b9d' />
+          </TouchableOpacity>
+        )
+        }
 
+        <TouchableOpacity style={{ padding: 10 }}>
+          <Button title='DELETE' color='#e63946'
+            onPress={() => deleteTodo(todo?.id)}
+          />
+        </TouchableOpacity>
+      </View>
+    )
+  }
+  const addList = () => {
+    if (textInput == '') {
+      Alert.alert('Error', 'Please Enter Something If you want')
+    } else {
+
+      const newTodo = {
+        id: Math.random(),
+        task: textInput,
+        Done: false,
+      }
+      setTodos([...todos, newTodo])
+      setTextInput('')
+    }
   }
 
+  const deleteTodo = (todoId) => {
+    const deleted = todos.filter(e => e.id != todoId)
+    setTodos(deleted)
+  }
+
+  const deleteAll = () =>{
+    setTodos([])
+    Alert.alert('Confirmed','Clear All List')
+  }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: Color.white }}>
+    <SafeAreaView style={styles.mainContainer}>
       <View style={styles.header}>
-        <Text style={{ fontWeight: 'bold', fontSize: 30, color: Color.primary }}>
-          TODO APP
+        <Text style={styles.todo}>
+          Todo-List
         </Text>
-        <Text style={{ fontWeight: 'bold', fontSize: 15, color: Color.white, backgroundColor: '#d90429', padding: 8, borderRadius: 15, borderWidth: 2 }}>
+        <Text style={styles.deleteall}
+        onPress={deleteAll}>
           DELETE LIST
         </Text>
       </View>
@@ -67,10 +91,14 @@ const App = () => {
         renderItem={({ item }) => <ListItem todo={item} />} />
       <View style={styles.footer}>
         <View style={styles.inp}>
-          <TextInput placeholder='Enter Something' />
+          <TextInput placeholder='Enter Something'
+            value={textInput}
+            onChangeText={(e) => { setTextInput(e) }}
+          />
         </View>
         <TouchableOpacity>
-          <Button title='ADD LIST' color='green' />
+          <Button title='ADD LIST' color='green'
+            onPress={addList} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -80,39 +108,4 @@ const App = () => {
 
 export default App
 
-const styles = StyleSheet.create({
-  header: {
-    padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: 'white',
-    width: '100%',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20
-  },
-  inp: {
-    backgroundColor: 'white',
-    elevation: 40,
-    flex: 1,
-    height: 50,
-    marginVertical: 20,
-    marginRight: 30,
-    borderRadius: 20,
-    paddingHorizontal: 20,
-    borderWidth: 1,
-  },
-  listitem: {
-    backgroundColor: 'white',
-    marginTop: 10,
-    borderWidth: 1,
-    borderRadius: 10,
-    padding: 10,
-    elevation: 50
-  }
-})
+
